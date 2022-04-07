@@ -1,0 +1,2 @@
+class BannerVenda():
+    pass
