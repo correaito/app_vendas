@@ -4,7 +4,7 @@ from kivy.lang import Builder
 from myfirebase import MyFirebase
 from telas import *
 from botoes import *
-import requests 
+import requests
 from bannervenda import BannerVenda
 import os
 from functools import partial
@@ -50,6 +50,17 @@ class MainApp(App):
             foto_perfil = self.root.ids["foto_perfil"]
             foto_perfil.source = f"icones/fotos_perfil/{avatar}"
 
+            # preencher o ID único
+            id_vendedor = requisicao_dic["id_vendedor"]
+            pagina_ajustes = self.root.ids["ajustespage"]
+            pagina_ajustes.ids["id_vendedor"].text = f"Seu ID Único: {id_vendedor}"
+
+            # preencher o total de vendas
+            total_vendas = requisicao_dic["total_vendas"]
+            homepage = self.root.ids["homepage"]
+            homepage.ids[
+                "label_total_vendas"].text = f"[color=#000]Total de Vendas:[/color] [b]R$ {total_vendas}[/b]"
+
             # preencher lista de vendas
             try:
                 vendas = requisicao_dic['vendas'][1:]
@@ -81,5 +92,6 @@ class MainApp(App):
                        data=info)
 
         self.mudar_tela("ajustespage")
+
 
 MainApp().run()
