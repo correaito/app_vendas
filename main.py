@@ -4,7 +4,7 @@ from kivy.lang import Builder
 from myfirebase import MyFirebase
 from telas import *
 from botoes import *
-import requests
+import requests 
 from bannervenda import BannerVenda
 import os
 from functools import partial
@@ -35,6 +35,11 @@ class MainApp(App):
 
     def carregar_infos_usuario(self):
         try:
+            with open("refreshtoken.txt", "r") as arquivo:
+                refresh_token = arquivo.read()
+            local_id, id_token = self.firebase.trocar_token(refresh_token)
+            self.local_id = local_id
+            self.id_token = id_token
             # pegar informacoes do usuario
             requisicao = requests.get(
                 f"https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json")
@@ -58,6 +63,7 @@ class MainApp(App):
                     lista_vendas.add_widget(banner)
             except:
                 pass
+            self.mudar_tela("homepage")
         except:
             pass
 
@@ -75,6 +81,5 @@ class MainApp(App):
                        data=info)
 
         self.mudar_tela("ajustespage")
-
 
 MainApp().run()
