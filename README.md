@@ -1,4 +1,4 @@
-<h1 align="center"> Comunidade Impressionadora </h1>
+<h1 align="center">Aplicativo de Vendas</h1>
 <h4 align="center">Projeto desenvolvido durante curso Python Impressionador com finalidade de estudo e treinamento de desenvolvimento de Aplicativos.</h4>
 
 <p align="center">
