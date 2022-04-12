@@ -67,8 +67,8 @@ class MyFirebase():
             # requisicao_dic["localId"] -> id_usuario
             refresh_token = requisicao_dic["refreshToken"]
             local_id = requisicao_dic["localId"]
-            id_token = requisicao_dic["idToken"]      
-            
+            id_token = requisicao_dic["idToken"]
+              
             meu_aplicativo = App.get_running_app() 
             meu_aplicativo.local_id = local_id
             meu_aplicativo.id_token = id_token
