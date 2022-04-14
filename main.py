@@ -41,6 +41,7 @@ class MainApp(App):
             local_id, id_token = self.firebase.trocar_token(refresh_token)
             self.local_id = local_id
             self.id_token = id_token
+            
             # pegar informacoes do usuario
             requisicao = requests.get(
                 f"https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json")
@@ -48,11 +49,13 @@ class MainApp(App):
 
             # preencher foto de perfil
             avatar = requisicao_dic['avatar']
+            self.avatar = avatar
             foto_perfil = self.root.ids["foto_perfil"]
             foto_perfil.source = f"icones/fotos_perfil/{avatar}"
 
             # preencher o ID único
             id_vendedor = requisicao_dic["id_vendedor"]
+            self.id_vendedor = id_vendedor
             pagina_ajustes = self.root.ids["ajustespage"]
             pagina_ajustes.ids["id_vendedor"].text = f"Seu ID Único: {id_vendedor}"
 
@@ -61,10 +64,15 @@ class MainApp(App):
             homepage = self.root.ids["homepage"]
             homepage.ids[
                 "label_total_vendas"].text = f"[color=#000]Total de Vendas:[/color] [b]R$ {total_vendas}[/b]"
+            
+            # preencher equipe
+            self.equipe = requisicao_dic["equipe"]
+            
 
             # preencher lista de vendas
             try:
                 vendas = requisicao_dic['vendas'][1:]
+                self.vendas = vendas
                 for venda in vendas:
                     banner = BannerVenda(cliente=venda["cliente"], foto_cliente=venda["foto_cliente"],
                                          produto=venda["produto"], foto_produto=venda["foto_produto"],
@@ -106,6 +114,32 @@ class MainApp(App):
                        data=info)
 
         self.mudar_tela("ajustespage")
-
+                        
+    def adicionar_vendedor(self, id_vendedor_adicionado):
+        link = f'https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/.json?orderBy="id_vendedor"&equalTo="{id_vendedor_adicionado}"'
+        requisicao = requests.get(link)
+        requisicao_dic = requisicao.json()
+        
+        pagina_adicionarvendedor = self.root.ids["adicionarvendedorpage"]
+        mensagem_texto = pagina_adicionarvendedor.ids["mensagem_outrovendedor"]
+        
+        
+        if requisicao_dic == {}:
+            mensagem_texto.text = "Usuário não encontrado"
+        else:
+            equipe = self.equipe.split(",")
+            if id_vendedor_adicionado in equipe:
+                mensagem_texto.text = "Vendedor já faz parte da equipe"
+            else:
+                self.equipe = self.equipe + f",{id_vendedor_adicionado}"
+                info = f'{{"equipe": "{self.equipe}"}}'
+                requests.patch(f'https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json', data=info)
+                mensagem_texto.text = "Vendedor Adicionado com Sucesso"
+                # adicionar um novo banner na lista de vendedores
+                pagina_listavendedores = self.root.ids["listarvendedorespage"]
+                lista_vendedores = pagina_listavendedores.ids["lista_vendedores"]
+                banner_vendedor = BannerVendedor(id_vendedor=id_vendedor_adicionado)
+                lista_vendedores.add_widget(banner_vendedor)      
+        
 
 MainApp().run()
