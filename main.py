@@ -1,4 +1,6 @@
 from csv import excel
+from datetime import datetime
+from turtle import onrelease
 from kivy.app import App
 from kivy.lang import Builder
 from myfirebase import MyFirebase
@@ -10,6 +12,7 @@ import os
 from functools import partial
 from myfirebase import MyFirebase
 from bannervendedor import BannerVendedor
+from datetime import date
 
 
 GUI = Builder.load_file("main.kv")
@@ -30,28 +33,36 @@ class MainApp(App):
             imagem = ImageButton(
                 source=f"icones/fotos_perfil/{foto}", on_release=partial(self.mudar_foto_perfil, foto))
             lista_fotos.add_widget(imagem)
-            
+
         # carregar as fotos dos clientes
         arquivos = os.listdir("icones/fotos_clientes")
         pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
         lista_clientes = pagina_adicionarvendas.ids["lista_clientes"]
         for foto_cliente in arquivos:
-            imagem = ImageButton(source=f"icones/fotos_clientes/{foto_cliente}")
-            label = LabelButton(text=foto_cliente.replace(".png", "").capitalize())
+            imagem = ImageButton(
+                source=f"icones/fotos_clientes/{foto_cliente}", on_release=partial(self.selecionar_cliente, foto_cliente))
+            label = LabelButton(text=foto_cliente.replace(".png", "").capitalize(
+            ), on_release=partial(self.selecionar_cliente, foto_cliente))
             lista_clientes.add_widget(imagem)
             lista_clientes.add_widget(label)
-            
-            
+
         # carregar as fotos dos produtos
         arquivos = os.listdir("icones/fotos_produtos")
         pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
         lista_produtos = pagina_adicionarvendas.ids["lista_produtos"]
         for foto_produto in arquivos:
-            imagem = ImageButton(source=f"icones/fotos_produtos/{foto_produto}")
-            label = LabelButton(text=foto_produto.replace(".png", "").capitalize())
+            imagem = ImageButton(
+                source=f"icones/fotos_produtos/{foto_produto}", on_release=partial(self.selecionar_produto, foto_produto))
+            label = LabelButton(text=foto_produto.replace(".png", "").capitalize(
+            ), on_release=partial(self.selecionar_produto, foto_produto))
             lista_produtos.add_widget(imagem)
             lista_produtos.add_widget(label)
-
+            
+        # carregar a data da pagina adicionar venda
+        pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
+        label_data = pagina_adicionarvendas.ids["label_data"]
+        label_data.text = f"Data: {date.today().strftime('%d/%m/%Y')}" # dd/mm/YY        
+        
         # carrega as infos dos usuários
         self.carregar_infos_usuario()
 
@@ -62,7 +73,7 @@ class MainApp(App):
             local_id, id_token = self.firebase.trocar_token(refresh_token)
             self.local_id = local_id
             self.id_token = id_token
-            
+
             # pegar informacoes do usuario
             requisicao = requests.get(
                 f"https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json")
@@ -85,10 +96,9 @@ class MainApp(App):
             homepage = self.root.ids["homepage"]
             homepage.ids[
                 "label_total_vendas"].text = f"[color=#000]Total de Vendas:[/color] [b]R$ {total_vendas}[/b]"
-            
+
             # preencher equipe
             self.equipe = requisicao_dic["equipe"]
-            
 
             # preencher lista de vendas
             try:
@@ -135,16 +145,15 @@ class MainApp(App):
                        data=info)
 
         self.mudar_tela("ajustespage")
-                        
+
     def adicionar_vendedor(self, id_vendedor_adicionado):
         link = f'https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/.json?orderBy="id_vendedor"&equalTo="{id_vendedor_adicionado}"'
         requisicao = requests.get(link)
         requisicao_dic = requisicao.json()
-        
+
         pagina_adicionarvendedor = self.root.ids["adicionarvendedorpage"]
         mensagem_texto = pagina_adicionarvendedor.ids["mensagem_outrovendedor"]
-        
-        
+
         if requisicao_dic == {}:
             mensagem_texto.text = "Usuário não encontrado"
         else:
@@ -154,13 +163,59 @@ class MainApp(App):
             else:
                 self.equipe = self.equipe + f",{id_vendedor_adicionado}"
                 info = f'{{"equipe": "{self.equipe}"}}'
-                requests.patch(f'https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json', data=info)
+                requests.patch(
+                    f'https://aplicativovendashash-ac1e8-default-rtdb.firebaseio.com/{self.local_id}.json', data=info)
                 mensagem_texto.text = "Vendedor Adicionado com Sucesso"
                 # adicionar um novo banner na lista de vendedores
                 pagina_listavendedores = self.root.ids["listarvendedorespage"]
                 lista_vendedores = pagina_listavendedores.ids["lista_vendedores"]
-                banner_vendedor = BannerVendedor(id_vendedor=id_vendedor_adicionado)
-                lista_vendedores.add_widget(banner_vendedor)      
+                banner_vendedor = BannerVendedor(
+                    id_vendedor=id_vendedor_adicionado)
+                lista_vendedores.add_widget(banner_vendedor)
+
+    def selecionar_cliente(self, foto, *args):
+        # pintar de azul a palavra do item que selecionamos
+        pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
+        lista_clientes = pagina_adicionarvendas.ids["lista_clientes"]
+
+        for item in list(lista_clientes.children):
+            item.color = (1, 1, 1, 1)
+            # pintar de branco todas as outras letras
+            # foto -> carrefour.png / Label -> Carrefour -> carrefour -> carrefour.png
+            try:
+                texto = item.text
+                texto = texto.lower() + ".png"
+                if foto == texto:
+                    item.color = (0, 207/255, 219/255, 1)
+            except:
+                pass
+
+    def selecionar_produto(self, foto, *args):
+        # pintar de branco todas as outras letras        
+        pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
+        lista_produtos = pagina_adicionarvendas.ids["lista_produtos"]
+
+        # pintar de azul a palavra do item que selecionamos
+        for item in list(lista_produtos.children):
+            item.color = (1, 1, 1, 1)
+            
+            try:
+                texto = item.text
+                texto = texto.lower() + ".png"
+                if foto == texto:
+                    item.color = (0, 207/255, 219/255, 1)
+            except:
+                pass
+            
+    def selecionar_unidade(self, id_label, *args):
+        pagina_adicionarvendas = self.root.ids["adicionarvendaspage"]
+
+        # pintar todo mundo de branco
+        pagina_adicionarvendas.ids["unidades_kg"].color = (1, 1, 1, 1)
+        pagina_adicionarvendas.ids["unidades_unidades"].color = (1, 1, 1, 1)
+        pagina_adicionarvendas.ids["unidades_litros"].color = (1, 1, 1, 1)
         
+        # pintar o cara selecionado de azul
+        pagina_adicionarvendas.ids[id_label].color = (0, 207/255, 219/255, 1)
 
 MainApp().run()
