@@ -106,9 +106,10 @@ class MainApp(App):
 
             # preencher lista de vendas
             try:
-                vendas = requisicao_dic['vendas'][1:]
+                vendas = requisicao_dic['vendas']
                 self.vendas = vendas
-                for venda in vendas:
+                for id_venda in vendas:
+                    venda = vendas[id_venda]
                     banner = BannerVenda(cliente=venda["cliente"], foto_cliente=venda["foto_cliente"],
                                          produto=venda["produto"], foto_produto=venda["foto_produto"],
                                          data=venda["data"], preco=venda["preco"],
@@ -116,7 +117,8 @@ class MainApp(App):
                     pagina_homepage = self.root.ids["homepage"]
                     lista_vendas = pagina_homepage.ids["lista_vendas"]
                     lista_vendas.add_widget(banner)
-            except:
+            except Exception as excecao:
+                print(excecao)
                 pass
 
             # preencher equipe de vendedores
