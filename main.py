@@ -296,7 +296,12 @@ class MainApp(App):
         self.produto = None
         self.unidade = None
 
-    def carregar_todas_vendas(self):
+    def carregar_todas_vendas(self):        
+        pagina_todasvendas = self.root.ids["todasvendaspage"]
+        lista_vendas = pagina_todasvendas.ids["lista_vendas"]
+         
+        for item in list(lista_vendas.children):
+            lista_vendas.remove_widget(item)
         # preencher a pagina todasvendaspage
         # pegar informacoes da empresa
         requisicao = requests.get(
@@ -305,10 +310,8 @@ class MainApp(App):
 
         # preencher foto de perfil
         foto_perfil = self.root.ids["foto_perfil"]
-        foto_perfil.source = f"icones/fotos_perfil/hash.png"
-
-        pagina_todasvendas = self.root.ids["todasvendaspage"]
-        lista_vendas = pagina_todasvendas.ids["lista_vendas"]
+        foto_perfil.source = f"icones/fotos_perfil/hash.png"       
+        
         total_vendas = 0
         for local_id_usuario in requisicao_dic:
             try:
