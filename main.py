@@ -340,6 +340,38 @@ class MainApp(App):
         foto_perfil.source = f"icones/fotos_perfil/{self.avatar}"
 
         self.mudar_tela("ajustespage")
+        
+    def carregar_vendas_vendedor(self, dic_info_vendedor, *args):
+        pagina_vendasoutrovendedor = self.root.ids["vendasoutrovendedorpage"]
+        lista_vendas = pagina_vendasoutrovendedor.ids["lista_vendas"]
+        
+        # vamos limpar a lista de vendas da pagina vendasoutrovendedor 
+        # antes de carregar as vendas de outro vendedor
+        for item in list(lista_vendas.children):
+            lista_vendas.remove_widget(item)               
+        
+        try:
+            vendas = dic_info_vendedor["vendas"]
+            for id_venda in vendas:
+                venda = vendas[id_venda]
+                banner = BannerVenda(cliente=venda["cliente"], foto_cliente=venda["foto_cliente"],
+                                        produto=venda["produto"], foto_produto=venda["foto_produto"],
+                                        data=venda["data"], preco=venda["preco"],
+                                        unidade=venda["unidade"], quantidade=venda["quantidade"])
+                lista_vendas.add_widget(banner)
+        except Exception as excecao:
+            pass
+        # preencher o total de vendas
+        total_vendas = dic_info_vendedor["total_vendas"]
+        pagina_vendasoutrovendedor.ids[
+            "label_total_vendas"].text = f"[color=#000]Total de Vendas:[/color] [b]R$ {total_vendas}[/b]"
+        
+        # preencher foto de perfil
+        avatar = dic_info_vendedor["avatar"]
+        foto_perfil = self.root.ids["foto_perfil"]
+        foto_perfil.source = f"icones/fotos_perfil/{avatar}"         
+    
+        self.mudar_tela("vendasoutrovendedorpage")
 
 
 MainApp().run()
