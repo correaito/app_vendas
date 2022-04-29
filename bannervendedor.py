@@ -27,7 +27,7 @@ class BannerVendedor(FloatLayout):
         total_vendas = valor["total_vendas"]
 
         meu_aplicativo = App.get_running_app()
-
+ 
         imagem = ImageButton(source=f"icones/fotos_perfil/{avatar}", pos_hint={
                              "right": 0.4, "top": 0.9}, size_hint=(0.3, 0.8),
                              on_release=partial(meu_aplicativo.carregar_vendas_vendedor, valor))
