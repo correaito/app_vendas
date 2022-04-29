@@ -36,9 +36,7 @@ Da sua linha de comando:
     
 Agora, para executar o script, dentro do PyCharm, abra o arquivo main.py, clique com o botão direito do mouse, e depois em "Run main.py", ou com <kbd>SHIFT</kbd> + <kbd>CTRL</kbd> + <kbd>F10</kbd>.
 
-Clicando na rota disponibilizada, a IDE irá executar nosso projeto.
-
-* Obs.: Em breve irei disponibilizar mais informações sobre esse projeto nesse arquivo. Aguardem!
+Clicando na rota disponibilizada, a IDE irá executar nosso projeto. 
 
 ------------
 Feito com ♥ por Alan Garmatter. [Visite meu LinkedIn](https://www.linkedin.com/in/alan-garmatter-8a05601b8/)! 👋 
